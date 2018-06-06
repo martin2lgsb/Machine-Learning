@@ -40,3 +40,5 @@ if __name__ == '__main__':
                          special_characters=True)
     graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
     graph.write_pdf("tree.pdf")
+
+    print(clf.predict([[1, 1, 1, 0]]))
