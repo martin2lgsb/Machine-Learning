@@ -8,10 +8,7 @@ import operator
 
 def classify(inX, dataSet, labels, k):
     dataSetSize = dataSet.shape[0]
-    diffMat = np.tile(inX, (dataSetSize, 1)) - dataSet
-    sqDiffMat = diffMat**2
-    sqDistances = sqDiffMat.sum(axis=1)
-    distances = sqDistances**0.5
+    distances = ((np.tile(inX, (dataSetSize, 1)) - dataSet)**2).sum(axis=1)**0.5
     sortedDistIndices = distances.argsort()
     classCount = {}
     for i in range(k):
@@ -133,5 +130,5 @@ def classifyPerson():
 
 
 if __name__ == '__main__':
-   # datingClassTest()
-    classifyPerson()
+   datingClassTest()
+    # classifyPerson()

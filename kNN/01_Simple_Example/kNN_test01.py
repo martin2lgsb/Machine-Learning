@@ -10,7 +10,7 @@ def createDataSet():
 
 
 def classify(inx, dataset, labels, k):
-    dist = np.sum((inx - dataset)**2, axis=1)**2
+    dist = ((inx - dataset)**2).sum(axis=1)**2
     k_labels = [labels[index] for index in dist.argsort()[0 : k]]
     label = collections.Counter(k_labels).most_common(1)[0][0]
     return label
