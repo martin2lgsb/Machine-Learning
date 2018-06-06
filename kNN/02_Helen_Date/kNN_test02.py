@@ -30,7 +30,7 @@ def file2matrix(filename):
     for line in arryOLines:
         line = line.strip()
         listFromLine = line.split('\t')
-        returnMat[index, :] = listFromLine[0 : 3]
+        returnMat[index, :] = listFromLine[0: 3]
         if listFromLine[-1] == 'didntLike':
             classLableVector.append(1)
         elif listFromLine[-1] == 'smallDoses':
@@ -39,6 +39,7 @@ def file2matrix(filename):
             classLableVector.append(3)
         index += 1
     return returnMat, classLableVector
+
 
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
