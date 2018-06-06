@@ -4,6 +4,23 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
+import operator
+
+def classify(inX, dataSet, labels, k):
+    dataSetSize = dataSet.shape[0]
+    diffMat = np.tile(inX, (dataSetSize, 1)) - dataSet
+    sqDiffMat = diffMat**2
+    sqDistances = sqDiffMat.sum(axis=1)
+    distances = sqDistances**0.5
+    sortedDistIndices = distances.argsort()
+    classCount = {}
+    for i in range(k):
+        voteIlabel = labels[sortedDistIndices[i]]
+        classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
+    sortedClassCount = sorted(classCount.items(), key=operator.itemgetter(1), reverse=True)
+
+    return sortedClassCount[0][0]
+
 
 def file2matrix(filename):
     fr = open(filename, 'r', encoding='utf-8')
@@ -25,6 +42,17 @@ def file2matrix(filename):
             classLableVector.append(3)
         index += 1
     return returnMat, classLableVector
+
+def autoNorm(dataSet):
+    minVals = dataSet.min(0)
+    maxVals = dataSet.max(0)
+    ranges = maxVals - minVals
+    normDataSet = np.zeros(np.shape(dataSet))
+    m = dataSet.shape[0]
+    normDataSet = dataSet - np.tile(minVals, (m, 1))
+    normDataSet = normDataSet / np.tile(ranges, (m, 1))
+    return normDataSet, ranges, minVals
+
 
 def showdatas(datingDataMat, datingLabels):
     font = FontProperties(fname=r"/System/Library/Fonts/PingFang.ttc", size=14)
@@ -73,7 +101,37 @@ def showdatas(datingDataMat, datingLabels):
     plt.show()
 
 
-if __name__ == '__main__':
+def datingClassTest():
     filename = "datingTestSet.txt"
     datingDataMat, datingLabels = file2matrix(filename)
-    showdatas(datingDataMat, datingLabels)
+    hoRatio = 0.10
+    normMat, ranges, minVals = autoNorm(datingDataMat)
+    # showdatas(datingDataMat, datingLabels)
+    m = normMat.shape[0]
+    numTestVecs = int(m * hoRatio)
+    errorCount = 0.0
+    for i in range(numTestVecs):
+        classifierResult = classify(normMat[i,:], normMat[numTestVecs:m,:], datingLabels[numTestVecs:m], 4)
+        print("分类结果:%d\t真实类别:%d" % (classifierResult, datingLabels[i]))
+        if classifierResult != datingLabels[i]:
+            errorCount += 1.0
+    print("错误率:%f%%" % (errorCount/float(numTestVecs)*100))
+
+
+def classifyPerson():
+    resultList = ["Hate", "like", "love"]
+    precentTats = float(input("玩视频游戏所耗时间百分比:"))
+    ffMiles = float(input("每年获得的飞行常客里程数:"))
+    iceCream = float(input("每周消费的冰激淋公升数:"))
+    filename = "datingTestSet.txt"
+    datingDataMat, datingLabels = file2matrix(filename)
+    normMat, ranges, minVals = autoNorm(datingDataMat)
+    inArr = np.array([precentTats, ffMiles, iceCream])
+    norminArr = (inArr - minVals) / ranges
+    classifierResult = classify(norminArr, normMat, datingLabels, 3)
+    print("你可能%s这个人" % (resultList[classifierResult-1]))
+
+
+if __name__ == '__main__':
+   # datingClassTest()
+    classifyPerson()
